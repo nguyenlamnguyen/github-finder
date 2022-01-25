@@ -2,21 +2,25 @@ import {FaCodepen, FaStore, FaUserFriends, FaUsers} from 'react-icons/fa'
 import {useEffect, useContext} from 'react'
 import {Link} from 'react-router-dom'
 import Spinner from '../components/layout/Spinner'
-import GithubContext from '../context/github/GithubContext';
+import GithubContext from '../context/github/GithubContext'
 import {useParams} from 'react-router-dom'
-import RepoList from '../components/repos/RepoList';
+import RepoList from '../components/repos/RepoList'
+import { getUserAndRepos } from '../context/github/GithubActions'
 
 function User() {
-    const {getUser, user, loading, getUserRepos, repos} = useContext(GithubContext)
+    const { user, loading, repos, dispatch} = useContext(GithubContext)
 
     const params = useParams()
 
     useEffect(() => {
-        getUser(params.login)
-        getUserRepos(params.login)
-        // To remove warning
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+        dispatch({type: 'SET_LOADING'})
+        const getUserData = async() =>{
+            const userData = await getUserAndRepos(params.login)
+            dispatch({type: 'GET_USER_AND_REPOS', payload: userData})        
+        } 
+
+        getUserData()
+    }, [dispatch, params.login])
 
     const {
         name,
@@ -97,7 +101,8 @@ function User() {
                             <div className="stat">
                                 <div className="stat-title text-md">Website</div>
                                 <div className="text-lg stat-value">
-                                    <a href={`https://${blog}`} target='_blank' rel='noreferrer'>
+                                    {/* <a href={`https://${blog}`} target='_blank' rel='noreferrer'> */}
+                                    <a href={`${blog}`} target='_blank' rel='noreferrer'>
                                         {blog}</a>
                                 </div>
                             </div>
